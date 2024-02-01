@@ -22,6 +22,9 @@ namespace Application.Features.PreFactorDetailFeature.Create
                 throw new ArgumentNullException(nameof(Product));
             var preFactorHeader = await _preFactorHeaderRepository.GetByIdAsync(request.PreFactorHeaderId, cancellationToken) ??
                 throw new ArgumentNullException(nameof(PreFactorHeader));
+            var productExistsInPreFactor = await _preFactorDetailRepository.CheckExistingProduct(request.ProductId, request.PreFactorHeaderId, cancellationToken);
+            if (productExistsInPreFactor)
+                throw new ArgumentException(nameof(Product), "Already Exists");
             var preFactorDetail = request.Adapt<PreFactorDetail>();
             await _preFactorDetailRepository.AddAsync(preFactorDetail, cancellationToken);
             await _unitOfWork.SaveAsync(cancellationToken);

@@ -1,5 +1,6 @@
 ﻿using Application.Repositories;
 using Domain.Entities;
+using Domain.Enums;
 using Mapster;
 using MediatR;
 
@@ -19,10 +20,14 @@ namespace Application.Features.DiscountFeature.Update
         private IUnitOfWork _unitOfWork = unitOfWork;
         public async Task<UpdateDiscountResponse> Handle(UpdateDiscountRequest request, CancellationToken cancellationToken)
         {
+            PreFactorDetail preFactorDetail;
+            if (request.Type == (byte)DiscountTypesEnum.PerRow)
+                preFactorDetail = await _preFactorDetailRepository.GetByIdAsync((Guid)request.PreFactorDetailId, cancellationToken) ??
+                    throw new ArgumentNullException(nameof(PreFactorDetail));
+            if (request.Type == (byte)DiscountTypesEnum.PerDocument && request.PreFactorDetailId is not null)
+                throw new ArgumentException(nameof(PreFactorDetail), "Should Be Null");
             var preFactorHeader = await _preFactorHeaderRepository.GetByIdAsync(request.PreFactorHeaderId, cancellationToken) ??
                 throw new ArgumentNullException(nameof(PreFactorHeader));
-            var preFactorDetail = await _preFactorDetailRepository.GetByIdAsync(request.PreFactorDetailId, cancellationToken) ??
-                throw new ArgumentNullException(nameof(PreFactorDetail));
             var oldDiscount = await _discountRepository.GetByIdAsync(request.Id, cancellationToken) ??
                 throw new ArgumentNullException(nameof(Discount));
             var newDiscount = request.Adapt(oldDiscount);

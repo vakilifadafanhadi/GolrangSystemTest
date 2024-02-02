@@ -13,10 +13,10 @@ namespace Application.Features.DiscountFeature.Create
         IUnitOfWork unitOfWork
         ) : IRequestHandler<CreateDiscountRequest, CreateDiscountResponse>
     {
-        private IPreFactorHeaderRepository _preFactorHeaderRepository = preFactorHeaderRepository;
-        private IPreFactorDetailRepository _preFactorDetailRepository = preFactorDetailRepository;
-        private IDiscountRepository _discountRepository = discountRepository;
-        private IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IPreFactorHeaderRepository _preFactorHeaderRepository = preFactorHeaderRepository;
+        private readonly IPreFactorDetailRepository _preFactorDetailRepository = preFactorDetailRepository;
+        private readonly IDiscountRepository _discountRepository = discountRepository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
         public async Task<CreateDiscountResponse> Handle(CreateDiscountRequest request, CancellationToken cancellationToken)
         {
             PreFactorDetail preFactorDetail;
@@ -27,6 +27,10 @@ namespace Application.Features.DiscountFeature.Create
                 throw new ArgumentException(nameof(PreFactorDetail), "Should Be Null");
             var preFactorHeader = await _preFactorHeaderRepository.GetByIdAsync(request.PreFactorHeaderId, cancellationToken) ??
                 throw new ArgumentNullException(nameof(PreFactorHeader));
+            var sumPrice = await _preFactorDetailRepository.SumPriceAsync(request.PreFactorHeaderId, cancellationToken);
+            var sumDiscount = await _discountRepository.SumPreFactorDiscounts(request.PreFactorHeaderId, cancellationToken);
+            if (sumPrice < sumDiscount + request.Amount)
+                throw new ArgumentException("Sum Price Should Be Greater Than Discounts");
             var discount = request.Adapt<Discount>();
             await _discountRepository.AddAsync(discount, cancellationToken);
             await _unitOfWork.SaveAsync(cancellationToken);

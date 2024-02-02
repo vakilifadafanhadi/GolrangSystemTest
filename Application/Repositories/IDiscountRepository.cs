@@ -4,6 +4,6 @@ namespace Application.Repositories
 {
     public interface IDiscountRepository : IBaseRepository<Discount>
     {
-        Task<ulong> SumPreFactorDiscounts(Guid preFactorHeaderId, CancellationToken cancellationToken);
+        Task<decimal> SumPreFactorDiscounts(Guid preFactorHeaderId, CancellationToken cancellationToken);
     }
 }

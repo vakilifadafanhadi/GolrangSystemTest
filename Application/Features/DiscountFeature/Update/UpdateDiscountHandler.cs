@@ -30,6 +30,10 @@ namespace Application.Features.DiscountFeature.Update
                 throw new ArgumentNullException(nameof(PreFactorHeader));
             var oldDiscount = await _discountRepository.GetByIdAsync(request.Id, cancellationToken) ??
                 throw new ArgumentNullException(nameof(Discount));
+            var sumPrice = await _preFactorDetailRepository.SumPriceAsync(request.PreFactorHeaderId, cancellationToken);
+            var sumDiscount = await _discountRepository.SumPreFactorDiscounts(request.PreFactorHeaderId, cancellationToken);
+            if (sumPrice < sumDiscount + request.Amount)
+                throw new ArgumentException("Sum Price Should Be Greater Than Discounts");
             var newDiscount = request.Adapt(oldDiscount);
             _discountRepository.Update(newDiscount);
             await _unitOfWork.SaveAsync(cancellationToken);

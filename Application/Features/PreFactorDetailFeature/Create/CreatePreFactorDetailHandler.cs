@@ -18,8 +18,8 @@ namespace Application.Features.PreFactorDetailFeature.Create
         private IUnitOfWork _unitOfWork = unitOfWork;
         public async Task<CreatePreFactorDetailResponse> Handle(CreatePreFactorDetailRequest request, CancellationToken cancellationToken)
         {
-            if(request.Price<=0)
-                throw new ArgumentException("Invalid Price")
+            if(request.Price <= 0)
+                throw new ArgumentException("Invalid Price");
             var product = await _productRepository.GetByIdAsync(request.ProductId, cancellationToken) ??
                 throw new ArgumentNullException(nameof(Product));
             var preFactorHeader = await _preFactorHeaderRepository.GetByIdAsync(request.PreFactorHeaderId, cancellationToken) ??

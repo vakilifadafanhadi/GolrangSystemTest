@@ -4,7 +4,7 @@ using Domain.Entities;
 namespace Persistence.Repositories
 {
     public sealed class CustomerRepository(DataContext dataContext) : 
-        BaseRepository<Discount>(dataContext), ICustomerRepository
+        BaseRepository<Customer>(dataContext), ICustomerRepository
     {
         ~CustomerRepository() => Dispose();
     }

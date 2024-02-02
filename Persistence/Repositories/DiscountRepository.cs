@@ -1,5 +1,6 @@
 ﻿using Application.Repositories;
 using Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Persistence.Repositories
 {
@@ -8,7 +9,10 @@ namespace Persistence.Repositories
     {
         public async Task<ulong> SumPreFactorDiscounts(Guid preFactorHeaderId, CancellationToken cancellationToken)
         {
-            _dataContext.Set<Discount>();
+            var list = await _dataContext.Set<Discount>()
+                .Where(discount => discount.IsDeleted == false)
+                .Where(discount => discount.PreFactorHeaderId == preFactorHeaderId)
+                .SumAsync(current => current.Amount, cancellationToken);
         }
         ~DiscountRepository() => Dispose();
     }
